@@ -14,6 +14,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 @Entity
 @Table(name = "COMMENT")
 @NamedQueries({ 
@@ -38,6 +40,7 @@ public class Comment {
 	private Date time;
 
 	@ManyToOne(cascade = CascadeType.ALL, targetEntity = Message.class)
+	@JsonBackReference
 	private Message message;
 
 	public Integer getId() {

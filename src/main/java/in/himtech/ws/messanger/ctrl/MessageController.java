@@ -12,6 +12,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -28,7 +29,7 @@ public class MessageController {
 
 	@Inject
 	CommentController cmntController;
-	
+
 	@Inject
 	private MessageService msgService;
 
@@ -39,7 +40,8 @@ public class MessageController {
 			return Response.status(Status.CREATED).entity(restResponse.getTypeObj()).type(MediaType.APPLICATION_JSON)
 					.build();
 		} else {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(restResponse.getMessage()).build();
+			throw new WebApplicationException(
+					Response.status(Status.INTERNAL_SERVER_ERROR).entity(restResponse.getMessage()).build());
 		}
 	}
 
@@ -48,11 +50,13 @@ public class MessageController {
 	public Response deleteMessage(@PathParam("msgId") int msgId) {
 		RestResponse<Message> restResponse = msgService.deleteMessage(msgId);
 		if (restResponse.getCode().equals("404")) {
-			return Response.status(Status.NOT_FOUND).entity(restResponse.getMessage()).build();
-		} else if (restResponse.getCode().equals("200")) {
-			return Response.status(Status.NO_CONTENT).entity(restResponse.getTypeObj()).build();
+			throw new WebApplicationException(
+					Response.status(Status.NOT_FOUND).entity(restResponse.getMessage()).build());
+		} else if (restResponse.getCode().equals("204")) {
+			return Response.status(Status.NO_CONTENT).build();
 		} else {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(restResponse.getMessage()).build();
+			throw new WebApplicationException(
+					Response.status(Status.INTERNAL_SERVER_ERROR).entity(restResponse.getMessage()).build());
 		}
 	}
 
@@ -64,7 +68,8 @@ public class MessageController {
 		if (restResponse.getCode().equals("200")) {
 			return Response.status(Status.OK).entity(restResponse.getTypeObj()).build();
 		} else {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(restResponse.getMessage()).build();
+			throw new WebApplicationException(
+					Response.status(Status.INTERNAL_SERVER_ERROR).entity(restResponse.getMessage()).build());
 		}
 	}
 
@@ -75,7 +80,8 @@ public class MessageController {
 		if (restResponse.getCode().equals("200")) {
 			return Response.status(Status.OK).entity(restResponse.getTypeObj()).build();
 		} else {
-			return Response.status(Status.NOT_FOUND).entity(restResponse.getMessage()).build();
+			throw new WebApplicationException(
+					Response.status(Status.NOT_FOUND).entity(restResponse.getMessage()).build());
 		}
 	}
 

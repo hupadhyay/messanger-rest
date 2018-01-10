@@ -6,16 +6,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import in.himtech.ws.messanger.domain.Comment;
-import in.himtech.ws.messanger.domain.Message;
 import in.himtech.ws.messanger.repository.CommentRepository;
-import in.himtech.ws.messanger.repository.MessageRepository;
 import in.himtech.ws.messanger.util.RestResponse;
 
 @Singleton
 public class CommentServiceImpl implements CommentService {
-
-	@Inject
-	private MessageRepository msgRepo;
 
 	@Inject
 	private CommentRepository cmntRepository;
@@ -23,9 +18,8 @@ public class CommentServiceImpl implements CommentService {
 	@Override
 	public RestResponse<Comment> saveComment(Integer msgId, Comment comment) {
 		RestResponse<Comment> response = new RestResponse<>();
-		Message msg = msgRepo.retriveMessage(msgId);
-		comment.setMessage(msg);
-		Comment cmnt = cmntRepository.saveComment(comment);
+	
+		Comment cmnt = cmntRepository.saveComment(msgId, comment);
 
 		if (cmnt == null) {
 			response.setCode("500");
@@ -42,17 +36,16 @@ public class CommentServiceImpl implements CommentService {
 	@Override
 	public RestResponse<Comment> updateComment(Integer msgId, Integer cmntId, Comment comment) {
 		RestResponse<Comment> response = new RestResponse<>();
-		Message msg = msgRepo.retriveMessage(msgId);
-		comment.setMessage(msg);
+		
 		comment.setId(cmntId);
-		Comment cmnt = cmntRepository.updateComment(comment);
+		Comment cmnt = cmntRepository.updateComment(msgId, comment);
 
 		if (cmnt == null) {
 			response.setCode("500");
 			response.setMessage("Message could not persisted.");
 			response.setTypeObj(null);
 		} else {
-			response.setCode("201");
+			response.setCode("200");
 			response.setMessage("Message successfully persisited");
 			response.setTypeObj(cmnt);
 		}
@@ -72,7 +65,7 @@ public class CommentServiceImpl implements CommentService {
 		boolean bool = cmntRepository.deleteComment(msgId, cmntId);
 
 		if (bool) {
-			response.setCode("200");
+			response.setCode("204");
 			response.setMessage("Resource with following id " + cmntId + " is removed.");
 			response.setTypeObj(null);
 		} else {

@@ -62,7 +62,7 @@ public class MessageServiceImpl implements MessageService{
 		boolean bool = msgRepo.removeMessage(msg);
 		
 		if(bool) {
-			response.setCode("200");
+			response.setCode("204");
 			response.setMessage("Resource with following id " + msgId + " is removed.");
 			response.setTypeObj(null);
 		} else {

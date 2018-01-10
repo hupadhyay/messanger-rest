@@ -9,21 +9,25 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 
 import in.himtech.ws.messanger.domain.Comment;
+import in.himtech.ws.messanger.domain.Message;
 import in.himtech.ws.messanger.util.EntityManagerUtils;
 
 @Singleton
-public class CommentRepositoryImpl implements CommentRepository{
-	
+public class CommentRepositoryImpl implements CommentRepository {
+
 	private EntityManagerFactory emf = EntityManagerUtils.getInstance();
 
 	@Override
-	public Comment saveComment(Comment comment) {
+	public Comment saveComment(Integer msgId, Comment comment) {
 		EntityManager em = emf.createEntityManager();
 		EntityTransaction transaction = em.getTransaction();
 
 		try {
 			transaction.begin();
+			Message msg = em.find(Message.class, msgId);
+			comment.setMessage(msg);
 			em.persist(comment);
+			msg.getListComment().add(comment);
 			transaction.commit();
 			em.close();
 			return comment;
@@ -36,7 +40,7 @@ public class CommentRepositoryImpl implements CommentRepository{
 	}
 
 	@Override
-	public Comment updateComment(Comment comment) {
+	public Comment updateComment(Integer msgId, Comment comment) {
 		EntityManager em = emf.createEntityManager();
 		EntityTransaction transaction = em.getTransaction();
 
@@ -78,7 +82,9 @@ public class CommentRepositoryImpl implements CommentRepository{
 	public Comment getComment(Integer msgId, Integer cmntId) {
 		EntityManager em = emf.createEntityManager();
 		Query query = em.createNamedQuery("oneCmntRecords", Comment.class);
-		Comment comment = (Comment)query.getResultList().get(0);
+		query.setParameter("msgId", msgId);
+		query.setParameter("cmntId", cmntId);
+		Comment comment = (Comment) query.getResultList().get(0);
 		em.close();
 		return comment;
 	}
@@ -87,6 +93,7 @@ public class CommentRepositoryImpl implements CommentRepository{
 	public List<Comment> getAllComments(Integer msgId) {
 		EntityManager em = emf.createEntityManager();
 		Query query = em.createNamedQuery("allCmntRecords", Comment.class);
+		query.setParameter("msgId", msgId);
 		List<Comment> listComment = query.getResultList();
 		em.close();
 		return listComment;

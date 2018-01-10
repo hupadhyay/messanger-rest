@@ -12,6 +12,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -25,26 +26,36 @@ import in.himtech.ws.messanger.util.RestResponse;
 @Singleton
 public class CommentController {
 
-	private static CommentController cmntController;
-
 	@Inject
 	private CommentService cmntService;
 
 	@POST
 	public Response persistComment(@PathParam("msgId") Integer msgId, Comment comment) {
-		System.out.println("Post Operation: Message id : " + msgId + ", and comment is: " + comment);
 		RestResponse<Comment> restResponse = cmntService.saveComment(msgId, comment);
-		return Response.status(Status.OK).build();
+
+		if (restResponse.getCode().equals("201")) {
+			return Response.status(Status.CREATED).entity(restResponse.getTypeObj()).type(MediaType.APPLICATION_JSON)
+					.build();
+		} else {
+			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR)
+					.entity(restResponse.getTypeObj()).type(MediaType.TEXT_PLAIN).build());
+		}
 	}
 
 	@PUT
 	@Path("{cmntId}")
 	public Response updateComment(@PathParam("msgId") Integer msgId, @PathParam("cmntId") Integer cmntId,
 			Comment comment) {
-		System.out.println("Put Operation Message id : " + msgId + ", and comment id: " + cmntId
-				+ ", and comment data is " + comment);
 		RestResponse<Comment> restResponse = cmntService.updateComment(msgId, cmntId, comment);
-		return Response.status(Status.OK).build();
+
+		if (restResponse.getCode().equals("200")) {
+			return Response.status(Status.OK).entity(restResponse.getTypeObj()).type(MediaType.APPLICATION_JSON)
+					.build();
+		} else {
+			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR)
+					.entity(restResponse.getTypeObj()).type(MediaType.TEXT_PLAIN).build());
+		}
+
 	}
 
 	@GET
@@ -52,7 +63,14 @@ public class CommentController {
 	public Response getComment(@PathParam("msgId") Integer msgId, @PathParam("cmntId") Integer cmntId) {
 		System.out.println("Get Operation: Message id : " + msgId + ", and comment id : " + cmntId);
 		RestResponse<Comment> restResponse = cmntService.getComment(msgId, cmntId);
-		return Response.status(Status.OK).build();
+
+		if (restResponse.getCode().equals("200")) {
+			return Response.status(Status.OK).entity(restResponse.getTypeObj()).type(MediaType.APPLICATION_JSON)
+					.build();
+		} else {
+			throw new WebApplicationException(Response.status(Status.NOT_FOUND).entity(restResponse.getTypeObj())
+					.type(MediaType.TEXT_PLAIN).build());
+		}
 	}
 
 	@DELETE
@@ -60,14 +78,30 @@ public class CommentController {
 	public Response deleteComment(@PathParam("msgId") Integer msgId, @PathParam("cmntId") Integer cmntId) {
 		System.out.println("delete Operation: Message id : " + msgId + ", and comment id : " + cmntId);
 		RestResponse<Comment> restResponse = cmntService.deleteComment(msgId, cmntId);
-		return Response.status(Status.OK).build();
+
+		if (restResponse.getCode().equals("204")) {
+			return Response.status(Status.NO_CONTENT).build();
+		} else if (restResponse.getCode().equals("404")) {
+			throw new WebApplicationException(Response.status(Status.NOT_FOUND).entity(restResponse.getTypeObj())
+					.type(MediaType.TEXT_PLAIN).build());
+		} else {
+			throw new WebApplicationException(Response.status(Status.INTERNAL_SERVER_ERROR)
+					.entity(restResponse.getTypeObj()).type(MediaType.TEXT_PLAIN).build());
+		}
 	}
 
 	@GET
 	public Response getAllComments(@PathParam("msgId") Integer msgId) {
 		System.out.println("Get All Operation: Message id : " + msgId);
 		RestResponse<List<Comment>> restResponse = cmntService.getAllComments(msgId);
-		return Response.status(Status.OK).build();
+
+		if (restResponse.getCode().equals("200")) {
+			return Response.status(Status.OK).entity(restResponse.getTypeObj()).type(MediaType.APPLICATION_JSON)
+					.build();
+		} else {
+			throw new WebApplicationException(Response.status(Status.NOT_FOUND).entity(restResponse.getTypeObj())
+					.type(MediaType.TEXT_PLAIN).build());
+		}
 	}
 
 }

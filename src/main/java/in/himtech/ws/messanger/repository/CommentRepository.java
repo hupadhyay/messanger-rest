@@ -6,9 +6,9 @@ import in.himtech.ws.messanger.domain.Comment;
 
 public interface CommentRepository {
 
-	Comment saveComment(Comment comment);
+	Comment saveComment(Integer msgId, Comment comment);
 	
-	Comment updateComment(Comment comment);
+	Comment updateComment(Integer msgId, Comment comment);
 	
 	boolean deleteComment(Integer msgId, Integer cmntId);
 	

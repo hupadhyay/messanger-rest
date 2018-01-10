@@ -10,11 +10,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlTransient;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+
 
 /**
  * 
@@ -44,6 +47,7 @@ public class Message {
 
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "MSG_COMMENT", joinColumns = @JoinColumn(name = "MSG_ID"), inverseJoinColumns = @JoinColumn(name = "COMNT_ID"))
+	@JsonManagedReference
 	private List<Comment> listComment;
 
 	public Integer getId() {
